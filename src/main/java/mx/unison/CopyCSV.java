@@ -1,9 +1,5 @@
 package mx.unison;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,40 +14,36 @@ public class CopyCSV {
         final String dataPath = "src\\main\\java\\mx\\unison\\vendors-data.dat";
         final String csvPath = "src\\main\\java\\mx\\unison\\vendors.csv";
         // final String csvPath =  "D:\\data\\vendorsata.csv";
-        //final String dataPath = "D:\\data\\vendors-data.dat";
+        // final String dataPath = "D:\\data\\vendors-data.dat";
         BufferedReader csvFile = null;
-        RandomAccessFile datFile = null;
+        BufferedWriter datFile = null;
+
         try {
             csvFile = new BufferedReader(new FileReader(csvPath));
 
             // archivo binario
-            datFile = new RandomAccessFile(dataPath, "rws");
+            datFile = new BufferedWriter(new FileWriter(dataPath));
 
             Vendor registroVendedor = null;
             String record = null;
-            byte buffer[] = null;
 
             csvFile.readLine();
 
             long time = System.currentTimeMillis();
 
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
+
             while ((record = csvFile.readLine()) != null) {
 
                 registroVendedor = parseRecord(record);
 
-                datFile.writeInt( registroVendedor.getCodigo() );
-
-                buffer = registroVendedor.getNombre().getBytes();
-                datFile.write(buffer);
-
-                long dob = registroVendedor.getFecha().getTime();
-                datFile.writeLong(dob);
-
-                buffer = registroVendedor.getZona().getBytes();
-                datFile.write(buffer);
+                datFile.write(registroVendedor.getCodigo() + ",");
+                datFile.write(registroVendedor.getNombre() + ",");
+                datFile.write(dateFormat.format(registroVendedor.getFecha()) + ",");
+                datFile.write(registroVendedor.getZona() + "\n");
 
             }
-            System.out.printf("Done in %d miliseconds\n", System.currentTimeMillis() - time );
+            System.out.printf("Done in %d milliseconds\n", System.currentTimeMillis() - time);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(VendorCSVFile.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -99,16 +91,15 @@ public class CopyCSV {
     public static Date parseDOB(String d) throws ParseException {
         int len = d.length();
         Date date = null;
-        if(len == 8) {
+        if (len == 8) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
             date = dateFormat.parse(d);
         }
-        if(len == 10) {
+        if (len == 10) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
             date = dateFormat.parse(d);
         }
         return date;
     }
-
 
 }
