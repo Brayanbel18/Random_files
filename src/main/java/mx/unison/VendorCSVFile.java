@@ -46,7 +46,42 @@ public class VendorCSVFile {
 
         return x;
     }
+    public void delete(int codigo) {
+        String lookFor = String.valueOf(codigo);
+        try {
+            File inputFile = new File(fileName);
+            File tempFile = new File("temp.csv");
 
+            BufferedReader in = new BufferedReader(new FileReader(inputFile));
+            PrintWriter out = new PrintWriter(new FileWriter(tempFile));
+
+            String record;
+            boolean deleted = false;
+            while ((record = in.readLine()) != null) {
+                if (record.startsWith(lookFor)) {
+                    deleted = true;
+                    continue; // Omite la línea que coincide con el código
+                }
+                out.println(record);
+            }
+
+            in.close();
+            out.close();
+
+            if (deleted) {
+                // Reemplaza el archivo original con el archivo temporal solo si se eliminó algún registro
+                inputFile.delete();
+                tempFile.renameTo(inputFile);
+                System.out.println("Vendedor eliminado correctamente.");
+            } else {
+                System.out.println("No se encontró un vendedor con ese código.");
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(VendorCSVFile.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(VendorCSVFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     private Date parseDOB(String d) throws ParseException {
         int len = d.length();
         Date date = null;
